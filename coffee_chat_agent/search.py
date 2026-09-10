@@ -6,8 +6,13 @@ own search bar.
 
 DEFAULT_ROLE_KEYWORDS = {
     "Operations": ["Operations", "Ops", "Program Manager", "Supply Chain"],
-    "R&D": ["R&D", "Research", "Clinical Development", "Discovery"],
+    "R&D": ["R&D", "Research", "Discovery", "Scientist"],
     "Strategy": ["Strategy", "Corporate Strategy", "Consultant"],
+    "Commercial": ["Commercial", "Market Access", "Marketing", "Sales"],
+    "Regulatory": ["Regulatory Affairs", "Regulatory", "Compliance"],
+    "Manufacturing": ["Manufacturing", "Supply Chain", "Quality", "CMC"],
+    "Clinical Development": ["Clinical Development", "Clinical Operations", "Clinical Trials"],
+    "Data/Analytics": ["Data Science", "Analytics", "Biostatistics", "Data Engineering"],
 }
 
 

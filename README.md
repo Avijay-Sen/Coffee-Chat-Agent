@@ -1,12 +1,14 @@
 # Coffee Chat Agent
 
 A small CLI that helps you run a healthcare-focused coffee-chat networking
-campaign: browse target companies across **healthcare consulting**,
-**healthcare product/health tech**, and **big pharma/biotech** (spanning
-startups to giants), generate LinkedIn/Google search strings to find real
-people in **Operations**, **R&D**, or **Strategy** roles there, draft
-personalized outreach messages for email or LinkedIn, and track who you've
-reached out to.
+campaign: browse target companies across the healthcare value chain --
+**consulting**, **digital health/product**, **big pharma**, **biotech**,
+**medtech/devices**, **payers/insurance**, **CROs**, and **healthcare-focused
+investing** (spanning startups to giants) -- generate LinkedIn/Google search
+strings to find real people in **Operations**, **R&D**, **Strategy**,
+**Commercial**, **Regulatory**, **Manufacturing**, **Clinical Development**,
+or **Data/Analytics** roles there, draft personalized outreach messages for
+email or LinkedIn, and track who you've reached out to.
 
 ## Why it works this way
 
@@ -31,10 +33,15 @@ cd coffee_chat_agent  # or run as a module from the repo root, see below
 Run everything as a module from the repo root:
 
 ```bash
-# 1. Browse target companies
+# 1. Browse target companies (segments: Consulting, Product, Pharma, Biotech,
+#    MedTech, Payer, CRO, Investing)
 python3 -m coffee_chat_agent.cli list --segment Pharma --function "R&D"
 python3 -m coffee_chat_agent.cli list --segment Consulting --size Mid-size
-python3 -m coffee_chat_agent.cli list --segment Product
+python3 -m coffee_chat_agent.cli list --segment Biotech
+python3 -m coffee_chat_agent.cli list --segment MedTech --function Regulatory
+python3 -m coffee_chat_agent.cli list --segment Payer
+python3 -m coffee_chat_agent.cli list --segment CRO --function "Clinical Development"
+python3 -m coffee_chat_agent.cli list --segment Investing
 
 # 2. Get a search string to find real people at a target company
 python3 -m coffee_chat_agent.cli search-string --company "Pfizer" --function "R&D"
