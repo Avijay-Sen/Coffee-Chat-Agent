@@ -19,6 +19,43 @@ names a real person only when their role is genuinely public (an official
 company leadership page, a press release, a conference speaker list) with
 a source link included so you can verify it yourself.
 
+## Alumni network (warm leads)
+
+Same-school outreach gets replies at a much higher rate than cold C-suite
+outreach, and it's fully ToS-clean since you find people through tools built
+for exactly this -- no scraping involved:
+
+- **LinkedIn's own Alumni page** -- `linkedin.com/school/university-of-california-berkeley/people/`
+  lets you filter Berkeley alumni by employer, field, and location using
+  LinkedIn's own UI. This is a feature LinkedIn provides, not scraping.
+- **Cal Alumni Association's CalConnect** -- a mentorship/networking platform;
+  incoming students typically get access via their berkeley.edu email.
+- **Department alumni directories** -- Berkeley Engineering/Bioengineering
+  often maintains its own alumni network or mentor list.
+- **Career center tools** -- Handshake and similar platforms sometimes surface
+  alumni willing to be contacted.
+
+Once you've found someone through one of those, log them here:
+
+```bash
+python3 -m coffee_chat_agent.cli alumni-add --name "Taylor Kim" --company "Genentech" \
+    --role "Associate Director, R&D" --segment Pharma --function "R&D" \
+    --source "LinkedIn Alumni page" --notes "Cal Bioengineering '19"
+
+python3 -m coffee_chat_agent.cli alumni-list
+python3 -m coffee_chat_agent.cli alumni-next          # who's left to contact
+python3 -m coffee_chat_agent.cli alumni-mark-contacted "Taylor Kim"
+
+# draft auto-fills the shared-school hook, and pulls company/role from
+# alumni.csv if you don't pass them:
+python3 -m coffee_chat_agent.cli draft --channel linkedin --alumni \
+    --my-name "Avijay" --my-background "an incoming UC Berkeley Bioengineering student" \
+    --recipient-name "Taylor Kim"
+```
+
+`alumni.csv` is git-ignored (like `outreach_log.csv`) since it holds real
+contacts you've personally identified.
+
 ## Daily targets
 
 `daily_targets/` holds one file per day (`YYYY-MM-DD.md`), each with ~5 real

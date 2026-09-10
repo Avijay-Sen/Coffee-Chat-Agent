@@ -16,11 +16,14 @@ Examples:
 import argparse
 import sys
 
+from . import alumni as alumni_mod
 from . import data as data_mod
 from . import daily as daily_mod
 from . import search as search_mod
 from . import templates as templates_mod
 from . import tracker as tracker_mod
+
+ALUMNI_HOOK = "We're both part of the UC Berkeley community"
 
 TIPS = """\
 Coffee chat networking tips (healthcare consulting / product / pharma):
@@ -78,12 +81,29 @@ def cmd_search_string(args):
 
 
 def cmd_draft(args):
+    recipient_company = args.recipient_company
+    recipient_role = args.recipient_role
+    hook = args.hook
+
+    if args.alumni:
+        hook = hook or ALUMNI_HOOK
+        known = alumni_mod.find(args.recipient_name)
+        if known:
+            recipient_company = recipient_company or known.get("company", "")
+            recipient_role = recipient_role or known.get("role", "")
+
+    if not recipient_company:
+        raise SystemExit(
+            "--recipient-company is required (not found in alumni.csv either -- "
+            "add it with `alumni-add` first, or pass --recipient-company directly)."
+        )
+
     ctx = templates_mod.OutreachContext(
         my_name=args.my_name,
         recipient_name=args.recipient_name,
-        recipient_company=args.recipient_company,
-        recipient_role=args.recipient_role,
-        hook=args.hook,
+        recipient_company=recipient_company,
+        recipient_role=recipient_role,
+        hook=hook,
         mutual_connection=args.mutual_connection,
         my_background=args.my_background,
         channel=args.channel,
@@ -133,6 +153,38 @@ def cmd_daily_mark_covered(args):
     print(f"Marked {len(args.companies)} companies as covered.")
 
 
+def cmd_alumni_add(args):
+    alumni_mod.add(
+        name=args.name, company=args.company, role=args.role,
+        segment=args.segment or "", function=args.function or "",
+        source=args.source, notes=args.notes,
+    )
+    print(f"Added {args.name} @ {args.company} to {alumni_mod.DEFAULT_PATH}")
+
+
+def cmd_alumni_list(args):
+    rows = alumni_mod.list_all()
+    if not rows:
+        print("No alumni logged yet. Use `alumni-add` to start building the list.")
+        return
+    for r in rows:
+        print(f"[{r['contacted']}] {r['name']} @ {r['company']} ({r['role']}) -- source: {r['source']}")
+
+
+def cmd_alumni_next(args):
+    rows = alumni_mod.next_uncontacted(n=args.count)
+    if not rows:
+        print("No uncontacted alumni left -- add more with `alumni-add`.")
+        return
+    for r in rows:
+        print(f"{r['name']} @ {r['company']} ({r['role']}) -- source: {r['source']}")
+
+
+def cmd_alumni_mark_contacted(args):
+    alumni_mod.mark_contacted(args.names)
+    print(f"Marked {len(args.names)} alumni as contacted.")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="coffee-chat-agent")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -156,10 +208,14 @@ def build_parser():
     p_draft.add_argument("--my-background", required=True,
                           help='e.g. "an MBA student interested in healthcare ops"')
     p_draft.add_argument("--recipient-name", required=True)
-    p_draft.add_argument("--recipient-company", required=True)
+    p_draft.add_argument("--recipient-company", default="",
+                          help="Required unless --alumni finds it from alumni.csv")
     p_draft.add_argument("--recipient-role", default="")
     p_draft.add_argument("--hook", default="", help="One specific personalization line")
     p_draft.add_argument("--mutual-connection", default="")
+    p_draft.add_argument("--alumni", action="store_true",
+                          help="Default the hook to a shared-school note and look up "
+                               "company/role from alumni.csv if not given")
     p_draft.set_defaults(func=cmd_draft)
 
     p_log = sub.add_parser("log", help="Log an outreach attempt")
@@ -186,6 +242,28 @@ def build_parser():
     p_daily_mark = sub.add_parser("daily-mark-covered", help="Mark companies as covered so they aren't repeated")
     p_daily_mark.add_argument("companies", nargs="+", help="Exact company name(s) as printed by daily-next")
     p_daily_mark.set_defaults(func=cmd_daily_mark_covered)
+
+    p_alumni_add = sub.add_parser("alumni-add", help="Log an alumni contact found via LinkedIn's Alumni page, CalConnect, etc.")
+    p_alumni_add.add_argument("--name", required=True)
+    p_alumni_add.add_argument("--company", required=True)
+    p_alumni_add.add_argument("--role", default="")
+    p_alumni_add.add_argument("--segment", choices=data_mod.SEGMENTS)
+    p_alumni_add.add_argument("--function", choices=data_mod.FUNCTIONS)
+    p_alumni_add.add_argument("--source", default="",
+                               help='e.g. "LinkedIn Alumni page", "CalConnect", "BioE alumni directory"')
+    p_alumni_add.add_argument("--notes", default="")
+    p_alumni_add.set_defaults(func=cmd_alumni_add)
+
+    p_alumni_list = sub.add_parser("alumni-list", help="Show all logged alumni contacts")
+    p_alumni_list.set_defaults(func=cmd_alumni_list)
+
+    p_alumni_next = sub.add_parser("alumni-next", help="Show uncontacted alumni to reach out to next")
+    p_alumni_next.add_argument("--count", type=int, default=5)
+    p_alumni_next.set_defaults(func=cmd_alumni_next)
+
+    p_alumni_mark = sub.add_parser("alumni-mark-contacted", help="Mark alumni as contacted")
+    p_alumni_mark.add_argument("names", nargs="+", help="Exact name(s) as logged via alumni-add")
+    p_alumni_mark.set_defaults(func=cmd_alumni_mark_contacted)
 
     return parser
 
