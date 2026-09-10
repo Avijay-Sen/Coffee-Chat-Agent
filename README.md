@@ -51,7 +51,7 @@ python3 -m coffee_chat_agent.cli search-string --company "McKinsey & Company (He
 # 3. Draft an outreach message once you have a name
 python3 -m coffee_chat_agent.cli draft --channel email \
     --my-name "Avijay" \
-    --my-background "an MBA student exploring healthcare/pharma operations" \
+    --my-background "an undergrad BioE student exploring healthcare/pharma operations" \
     --recipient-name "Jane Doe" \
     --recipient-company "Pfizer" \
     --recipient-role "Director, R&D Operations" \
