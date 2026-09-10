@@ -12,13 +12,36 @@ email or LinkedIn, and track who you've reached out to.
 
 ## Why it works this way
 
-This tool intentionally does **not** produce a list of named individuals to
-message. There's no LinkedIn API/scraping access here, and generating
-specific private people's names or contact details without a live directory
-would mean making them up -- not useful and not okay to send. Instead, the
-agent gets you 90% of the way: real target companies, a ready-to-paste
-search string to find the actual humans yourself on LinkedIn, and a
-strong message draft the moment you have a name.
+There's no LinkedIn API/scraping access here, so this tool never invents
+names -- either it gives you a ready-to-paste search string to find the
+actual human yourself on LinkedIn, or (for the daily targets, below) it
+names a real person only when their role is genuinely public (an official
+company leadership page, a press release, a conference speaker list) with
+a source link included so you can verify it yourself.
+
+## Daily targets
+
+`daily_targets/` holds one file per day (`YYYY-MM-DD.md`), each with ~5 real
+people to reach out to, sourced from public leadership pages/press releases
+(never LinkedIn scraping), plus ready-to-send email and LinkedIn drafts for
+each. `coffee_chat_agent/daily.py` deterministically rotates through
+`data.py`'s companies (spread across segments) so the same company isn't
+suggested twice until every company has been covered once; its state lives
+in `daily_targets/.state.json`.
+
+```bash
+# Get today's 5 target companies (doesn't touch state)
+python3 -m coffee_chat_agent.cli daily-next --count 5
+
+# After writing today's daily_targets/<date>.md, mark those companies used
+python3 -m coffee_chat_agent.cli daily-mark-covered "Pfizer" "Medtronic" ...
+```
+
+Note: sourcing from public bios tends to surface senior leaders (VP/C-suite)
+since they're the ones with public profiles -- great for learning about the
+role, but reply odds from a cold student outreach are realistically low at
+that level. Pair this with `search-string` to also find more reachable
+Director/Manager-level people at the same companies.
 
 ## Setup
 

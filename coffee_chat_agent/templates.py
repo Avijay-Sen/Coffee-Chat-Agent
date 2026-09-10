@@ -19,6 +19,11 @@ def _sentence(text: str) -> str:
     return text + " "
 
 
+def _article(word: str) -> str:
+    """Return 'a' or 'an' for the given word, by leading-letter heuristic."""
+    return "an" if word[:1].upper() in "AEIOU" else "a"
+
+
 @dataclass
 class OutreachContext:
     my_name: str
@@ -45,7 +50,7 @@ def linkedin_connection_note(ctx: OutreachContext) -> str:
 def linkedin_message(ctx: OutreachContext) -> str:
     hook_line = _sentence(ctx.hook)
     mutual_line = _sentence(f"{ctx.mutual_connection} suggested I reach out" if ctx.mutual_connection else "")
-    role_clause = f" as a {ctx.recipient_role}" if ctx.recipient_role else ""
+    role_clause = f" as {_article(ctx.recipient_role)} {ctx.recipient_role}" if ctx.recipient_role else ""
     return (
         f"Hi {ctx.recipient_name},\n\n"
         f"{mutual_line}I'm {ctx.my_name}, {ctx.my_background}. {hook_line}"

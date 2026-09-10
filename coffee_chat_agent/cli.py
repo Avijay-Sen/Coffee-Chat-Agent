@@ -17,6 +17,7 @@ import argparse
 import sys
 
 from . import data as data_mod
+from . import daily as daily_mod
 from . import search as search_mod
 from . import templates as templates_mod
 from . import tracker as tracker_mod
@@ -121,6 +122,17 @@ def cmd_tips(args):
     print(TIPS)
 
 
+def cmd_daily_next(args):
+    for c in daily_mod.next_targets(n=args.count):
+        funcs = ", ".join(c.functions)
+        print(f"{c.name} | {c.segment} | {c.size} | ({funcs})")
+
+
+def cmd_daily_mark_covered(args):
+    daily_mod.mark_covered(args.companies)
+    print(f"Marked {len(args.companies)} companies as covered.")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="coffee-chat-agent")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -166,6 +178,14 @@ def build_parser():
 
     p_tips = sub.add_parser("tips", help="Print networking tips")
     p_tips.set_defaults(func=cmd_tips)
+
+    p_daily_next = sub.add_parser("daily-next", help="Get the next N companies for today's outreach targets")
+    p_daily_next.add_argument("--count", type=int, default=5)
+    p_daily_next.set_defaults(func=cmd_daily_next)
+
+    p_daily_mark = sub.add_parser("daily-mark-covered", help="Mark companies as covered so they aren't repeated")
+    p_daily_mark.add_argument("companies", nargs="+", help="Exact company name(s) as printed by daily-next")
+    p_daily_mark.set_defaults(func=cmd_daily_mark_covered)
 
     return parser
 
